@@ -6,18 +6,23 @@ Silvervine installs and maintains Widevine L3 for compatible Chromium-family bro
 
 ## Install
 
-### Windows x64
+Download the latest `silvervine-x86_64-pc-windows-msvc.zip` from this fork's [Releases](https://github.com/paparei/silvervine-window/releases), extract it to a permanent folder, then run:
 
-Build with [Rust](https://rustup.rs/) and Visual Studio Build Tools (Desktop development with C++), or download the `silvervine-windows-x64` artifact from this fork's CI:
+```powershell
+.\silvervine.exe setup
+.\silvervine.exe status
+.\silvervine.exe test --browser Helium
+```
+
+Windows SmartScreen may show an unsigned-binary warning; verify the release `.sha256` checksum before running it. The archive is portable and does not require an administrator installer. Keep the extracted executable in place because the per-user Startup shortcut points to it.
+
+Developers can build the same executable with [Rust](https://rustup.rs/) and Visual Studio Build Tools (Desktop development with C++):
 
 ```powershell
 cargo build --release --locked
-.\target\release\silvervine.exe setup
-.\target\release\silvervine.exe status
-.\target\release\silvervine.exe test --browser Helium
 ```
 
-Keep the executable in a permanent location before running `setup`: its per-user Startup shortcut points to that file. Close the browser first. Use `setup --no-daemon` for manual installation only. No administrator privileges are required; the CDM is installed in the browser's user-data directory, not Program Files.
+
 
 Portable browsers and custom profiles can be configured in `%APPDATA%\silvervine\config.toml`:
 
