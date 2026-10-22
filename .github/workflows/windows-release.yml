@@ -1,0 +1,42 @@
+name: Windows Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.96.0
+      - name: Build
+        run: cargo build --release --locked
+      - name: Test Windows port
+        run: |
+          cargo test --lib windows -- --test-threads=1
+          cargo test --lib diagnostics::store::tests -- --test-threads=1
+      - name: Package
+        shell: pwsh
+        run: |
+          $dir = "silvervine-${{ github.ref_name }}-x86_64-pc-windows-msvc"
+          New-Item -ItemType Directory -Path $dir | Out-Null
+          Copy-Item target/release/silvervine.exe "$dir/silvervine.exe"
+          Copy-Item README.md,LICENSE "$dir/"
+          Compress-Archive -Path "$dir/*" -DestinationPath "$dir.zip"
+          (Get-FileHash "$dir.zip" -Algorithm SHA256).Hash.ToLower() + "  $dir.zip" | Set-Content "$dir.zip.sha256"
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            silvervine-*-x86_64-pc-windows-msvc.zip
+            silvervine-*-x86_64-pc-windows-msvc.zip.sha256
+          generate_release_notes: true
+          prerelease: true

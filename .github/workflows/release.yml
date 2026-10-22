@@ -47,9 +47,7 @@ concurrency:
 # created tag immutable, closing the exact-SHA verification/publication race.
 on:
   pull_request:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
 
 jobs:
   # Run 'dist plan' to determine what tasks we need to do. Always non-mutating
