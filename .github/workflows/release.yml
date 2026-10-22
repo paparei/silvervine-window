@@ -2,7 +2,7 @@
 # hardening applied by hand:
 # - default contents: read; only the final publish job may write releases
 # - plan is non-mutating (`dist plan`) so it never needs repository-write
-# - tag publishes gate on exact-SHA quality checks + all three ship targets
+# - tag publishes gate on exact-SHA quality checks + all four ship targets
 # - third-party actions pinned to full commit SHAs
 # - concurrency blocks duplicate publishes for the same ref (never cancel mid-flight)
 # - `v*` tag creation is maintainer-only; updates/deletions have no bypass
@@ -247,10 +247,12 @@ jobs:
           - target: x86_64-unknown-linux-musl
             runner: ubuntu-22.04
             packages: musl-tools
-            # cargo-dist 0.31 (build/cargo.rs) sets +crt-static and
-            # link-self-contained and does not override the linker.
-            # musl-gcc as linker injects INTERP and is not static-pie.
+            # cargo-dist 0.31 (build/cargo.rs) sets +crt-static and does not
+            # override the linker. musl-gcc as linker injects INTERP.
             rustflags: "-Ctarget-feature=+crt-static -Clink-self-contained=yes"
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2022
+            # Windows uses the native MSVC linker supplied by the runner.
     env:
       CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS: ${{ matrix.rustflags }}
     steps:
